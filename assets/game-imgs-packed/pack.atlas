@@ -1,0 +1,90 @@
+
+pack.png
+size: 1024, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+apple
+  rotate: false
+  xy: 2, 16
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+back
+  rotate: false
+  xy: 2, 30
+  size: 480, 480
+  orig: 480, 480
+  offset: 0, 0
+  index: -1
+bitea
+  rotate: false
+  xy: 484, 460
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+biteb
+  rotate: false
+  xy: 484, 408
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 2, 2
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 588, 446
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+pink
+  rotate: false
+  xy: 536, 460
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+play
+  rotate: false
+  xy: 484, 356
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+red
+  rotate: false
+  xy: 536, 408
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+shine
+  rotate: false
+  xy: 588, 460
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+white
+  rotate: false
+  xy: 484, 304
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+yellow
+  rotate: false
+  xy: 536, 356
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
