@@ -12,15 +12,24 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.snake.scell;
+
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
+import static com.badlogic.gdx.math.Interpolation.*;
 
 public class WrapMap extends State{
 	//Batch and Camera
@@ -33,6 +42,7 @@ public class WrapMap extends State{
 		AtlasRegion body;
 		AtlasRegion back;
 		AtlasRegion apple;
+		AtlasRegion yellow;
 		
 		//Sprites
 		
@@ -49,7 +59,11 @@ public class WrapMap extends State{
 		//Scene2d
 		Stage stageleft;
 		Label scorelab;
+		
+		Stage stagemid;
 		Label pauselab;
+		Label yrscore;
+		TextButton restart;
 		
 		//Fonts
 		BitmapFont titlefont;
@@ -111,6 +125,8 @@ public class WrapMap extends State{
 		rightvp = new FitViewport(80,480);
 		rightvp.setScreenBounds(560, 0, 80, 480);
 		
+		//Atlas and regions
+		texInit();
 		
 		//Scene2d
 		stageInit();
@@ -118,14 +134,8 @@ public class WrapMap extends State{
 		//Random
 		rand = new Random();
 				
-		//Atlas and regions
-		head = atlas.findRegion("head");
-		body = atlas.findRegion("body");
-		back = atlas.findRegion("back");
-		apple = atlas.findRegion("apple");
-				
 		//Snake array
-		createSn(3);
+		createSn(6);
 		applec = new scell(rand.nextInt(40),rand.nextInt(40),apple);
 	}
 
@@ -160,6 +170,7 @@ public class WrapMap extends State{
 	protected void dispose() {
 		// TODO Auto-generated method stub
 		stageleft.dispose();
+		stagemid.dispose();
 		if(gsm.next_st!=null) return;
 		normalfont.dispose();
 		titlefont.dispose();
@@ -216,7 +227,7 @@ public class WrapMap extends State{
 	}
 	
 	private void posUpd() {
-		if(headc.x!=applec.x || headc.y!=applec.y) {
+		if(headc.x!=applec.x || headc.y!=applec.y) { //apple not in head
 			scell cur = tailc;
 			tailc = cur.prev;
 			tailc.next = null;
@@ -230,7 +241,7 @@ public class WrapMap extends State{
 			cur.next.prev = cur;
 			headc.next = cur;
 		}
-		else {
+		else { //apple in head
 			scell newc = new scell(headc.x,headc.y,body);
 			newc.prev = headc;
 			newc.next = headc.next;
@@ -265,6 +276,9 @@ public class WrapMap extends State{
 		headc.sprpos();
 		if(chcoll()) {
 			ended = true;
+			yrscore.setVisible(true);
+			yrscore.setText("Your score is "+score);
+			restart.setVisible(true);
 		}
 	}
 	
@@ -339,6 +353,10 @@ public class WrapMap extends State{
 		leftvp.apply(true);
 		stageleft.act(delta);
 		stageleft.draw();
+		
+		midvp.apply();
+		stagemid.act(delta);
+		stagemid.draw();
 	}
 	
 	private void createSn(int len) {
@@ -354,30 +372,105 @@ public class WrapMap extends State{
 		tailc = cur;
 	}
 	
+	private void texInit() {
+		head = atlas.findRegion("head");
+		body = atlas.findRegion("body");
+		back = atlas.findRegion("back");
+		apple = atlas.findRegion("apple");
+		yellow = atlas.findRegion("yellow");
+	}
+	
 	private void stageInit() {
 		stageleft = new Stage();
 		stageleft.setViewport(leftvp);
 		
-		Table table = new Table();
-		table.setFillParent(true);
-		table.setDebug(false);
-		stageleft.addActor(table);
+		Table tableleft = new Table();
+		tableleft.setFillParent(true);
+		tableleft.setDebug(false);
+		stageleft.addActor(tableleft);
 		
 		LabelStyle lsty = new LabelStyle();
 		lsty.font = normalfont;
 		lsty.fontColor = Color.WHITE;
 		
 		Label label1 = new Label("Score:",lsty);
-		table.add(label1);
+		tableleft.add(label1);
 		
 		scorelab = new Label("0",lsty);
-		table.row();
-		table.add(scorelab);
+		tableleft.row();
+		tableleft.add(scorelab);
+		
+		stagemid = new Stage();
+		stagemid.setViewport(midvp);
+		Gdx.input.setInputProcessor(stagemid);
+		
+		Table tablemid = new Table();
+		tablemid.setFillParent(true);
+		tablemid.setDebug(false);
+		stagemid.addActor(tablemid);
 		
 		pauselab = new Label("Paused",lsty);
 		pauselab.setVisible(false);
-		table.row();
-		table.add(pauselab);
+		tablemid.add(pauselab);
+		
+		yrscore = new Label("",lsty);
+		yrscore.setVisible(false);
+		tablemid.row();
+		tablemid.add(yrscore);
+		
+		TextButtonStyle tbsty = new TextButtonStyle();
+		tbsty.font = normalfont;
+		tbsty.fontColor = Color.BLACK;
+		tbsty.up =tbsty.over=tbsty.down= new TextureRegionDrawable(yellow);
+		
+		restart = new TextButton("Restart",tbsty);
+		restart.setVisible(false);
+		restart.setOrigin(25,25);
+		restart.setTransform(true);
+		restart.addListener(new ClickListener() {
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				// TODO Auto-generated method stub
+				yrscore.addAction(moveBy(0,5));
+				restart.addAction(scaleTo(1.2f,1.2f,0.3f));
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				// TODO Auto-generated method stub
+				yrscore.addAction(moveBy(0,-5));
+				restart.addAction(scaleTo(1,1f,0.3f));
+			}
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				// TODO Auto-generated method stub
+				yrscore.setVisible(false);
+				restart.setVisible(false);
+				pauselab.setVisible(false);
+				scorelab.setText("0");
+				
+				started = false;
+				ended = false;
+				pressed = false;
+				paused = false;
+				dir=0;
+				speed = 10;
+				steptime = 1/speed;
+				timer = 0;
+				score = 0;
+				
+				applec.x = rand.nextInt(40);
+				applec.y = rand.nextInt(40);
+				applec.sprpos();
+				
+				createSn(6);
+			}
+			
+		});
+		tablemid.row();
+		tablemid.add(restart).padTop(10);
 		
 	}
 	
@@ -403,6 +496,5 @@ public class WrapMap extends State{
 			steptime = 1/speed;
 		}
 	}
-	
 	
 }
